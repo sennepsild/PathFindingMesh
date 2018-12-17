@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 public class Pathfinding : MonoBehaviour
 {
-
+    public GameObject imageOfGrid;
     public Transform seeker, target;
     Grid grid;
     public BezierSpline spline;
@@ -18,9 +19,41 @@ public class Pathfinding : MonoBehaviour
 
     public void Pathfind()
     {
-        //var splineScript = GetComponent<BezierSpline>();
         grid = GetComponent<Grid>();
-        FindPath(seeker.position, target.position);
+        string AllTheData = "";
+        for (int i = 0; i < 20; i++)
+        {
+
+
+            bool SeekerInPos = false;
+            while (!SeekerInPos)
+            {
+                
+                seeker.position = new Vector3(Random.Range(-(grid.gridWorldSize.x / 2), grid.gridWorldSize.x / 2), 0, Random.Range(-(grid.gridWorldSize.y / 2), grid.gridWorldSize.y / 2));
+                SeekerInPos = grid.NodeFromWorldPoint(seeker.position).walkable;
+            }
+            bool targetInPos = false;
+            while (!targetInPos)
+            {
+                target.position = new Vector3(Random.Range(-(grid.gridWorldSize.x / 2), grid.gridWorldSize.x / 2), 0, Random.Range(-(grid.gridWorldSize.y / 2), grid.gridWorldSize.y / 2));
+                targetInPos = grid.NodeFromWorldPoint(target.position).walkable;
+            }
+
+
+            //var splineScript = GetComponent<BezierSpline>();
+            grid = GetComponent<Grid>();
+            FindPath(seeker.position, target.position);
+
+            AllTheData+=("Number: "+i+ " Point Distance: " + Vector3.Distance(target.position, seeker.position) + ", Path Length: " + spline.GetLength()+" \n");
+            MakeImg(i);
+        }
+
+        File.WriteAllText(Application.dataPath + "/../CollectedData.txt", AllTheData);
+    }
+
+    public void MakeImg(int number)
+    {
+        imageOfGrid.GetComponent<Renderer>().sharedMaterial.mainTexture = grid.ImgOfPath(number);
     }
 
     void FindPath(Vector3 startPos, Vector3 targetPos)
@@ -76,7 +109,7 @@ public class Pathfinding : MonoBehaviour
 
     void RetracePath(Node startNode, Node endNode)
     {
-        
+        spline.Reset();
         List<Node> path = new List<Node>();
         Node currentNode = endNode;
         int i = 0;

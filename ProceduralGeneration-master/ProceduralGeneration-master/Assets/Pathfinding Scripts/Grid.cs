@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 public class Grid : MonoBehaviour
 {
@@ -105,4 +106,41 @@ public class Grid : MonoBehaviour
             }
         }
     }
+
+    public Texture2D ImgOfPath(int number)
+    {
+        Texture2D tex = new Texture2D(gridSizeX, gridSizeY);
+
+        Color[] pixs = tex.GetPixels();
+
+        for (int x = 0; x < gridSizeX; x++)
+        {
+            for (int y = 0; y < gridSizeY; y++)
+            {
+                
+                
+                pixs[y * gridSizeY + x] = (grid[x,y].walkable) ? Color.white : Color.red;
+                if (path != null)
+                    if (path.Contains(grid[x,y]))
+                        pixs[y * gridSizeY + x] = Color.black;
+                
+            }
+        }
+        
+        tex.SetPixels(pixs);
+        
+        tex.filterMode = FilterMode.Point;
+
+        tex.Apply();
+
+        byte[] bytes = tex.EncodeToPNG();
+
+        
+        File.WriteAllBytes(Application.dataPath + "/../PathingImage"+number+".png", bytes);
+        
+
+        return tex;
+
+    }
+
 }
