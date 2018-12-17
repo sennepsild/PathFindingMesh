@@ -83,7 +83,14 @@ public class BezierSpline : MonoBehaviour
     public float GetLength()
     {
 
-        return 0;
+        Vector3 point = GetPoint(0);
+        float length = 0;
+        for (float i = 0.001f; i <= 1; i+= 0.001f)
+        {
+           length+= Vector3.Distance(point, GetPoint(i));
+            point = GetPoint(i);
+        }
+        return length;
     }
 
 
